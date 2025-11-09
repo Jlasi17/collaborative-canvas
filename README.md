@@ -27,3 +27,12 @@ A multi-user drawing application where multiple people can draw simultaneously o
 git clone https://github.com/Jlasi17/collaborative-canvas.git
 cd collaborative-canvas
 ```
+2.Install dependencies
+```bash
+npm install
+```
+3.run the server
+```bash
+npm start
+```
+this will start in the localhost
