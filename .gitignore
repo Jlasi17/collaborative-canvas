@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build or cache files
+dist/
+build/
+.cache/
+*.tmp
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+

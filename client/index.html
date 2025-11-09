@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <div class="toolbar">
+                <button id="pencil" class="tool active" title="Pencil">✏️</button>
+                <button id="eraser" class="tool" title="Eraser">🧽</button>
+                <input type="color" id="color" value="#000000" title="Color">
+                <input type="range" id="size" min="1" max="50" value="5" title="Brush Size">
+                <span id="size-value">5px</span>
+                <button id="clear" title="Clear Canvas">🗑️ Clear</button>
+                <button id="undo" title="Undo">↩️ Undo</button>
+                <button id="redo" title="Redo">↪️ Redo</button>
+            </div>
+            <div class="room-controls">
+                <input type="text" id="room-id" placeholder="Room ID" value="">
+                <button id="create-room">Create Room</button>
+                <button id="join-room">Join Room</button>
+                <span id="status">Not connected</span>
+            </div>
+        </div>
+        
+        <div class="users-panel">
+            <h3>Online Users</h3>
+            <div id="users-list"></div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+            <div id="cursor-overlay"></div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="canvas.js" type="module"></script>
+    <script src="websocket.js" type="module"></script>
+    <script src="main.js" type="module"></script>
+</body>
+</html>
