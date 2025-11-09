@@ -9,23 +9,23 @@ The Collaborative Canvas application is built with a client-server architecture 
 ```
 ┌─────────────┐         WebSocket          ┌─────────────┐
 │   Client 1  │◄──────────────────────────►│             │
-│             │                             │   Server    │
-└─────────────┘                             │             │
-                                            │  (Socket.io)│
-┌─────────────┐                             │             │
+│             │                            │   Server    │
+└─────────────┘                            │             │
+                                           │  (Socket.io)│
+┌─────────────┐                            │             │
 │   Client 2  │◄──────────────────────────►│             │
-│             │                             │             │
-└─────────────┘                             └─────────────┘
-       │                                            │
-       │                                            │
-       ▼                                            ▼
+│             │                            │             │
+└─────────────┘                            └─────────────┘
+       │                                           │
+       │                                           │
+       ▼                                           ▼
 ┌─────────────┐                             ┌─────────────┐
 │   Canvas    │                             │Room Manager │
 │   Manager   │                             │             │
 └─────────────┘                             └─────────────┘
-       │                                            │
-       │                                            │
-       ▼                                            ▼
+       │                                           │
+       │                                           │
+       ▼                                           ▼
 ┌─────────────┐                             ┌─────────────┐
 │  Drawing    │                             │Drawing State│
 │  Operations │                             │  Manager    │
@@ -47,37 +47,38 @@ The Collaborative Canvas application is built with a client-server architecture 
 
 #### Client → Server
 
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `join-room` | `{ roomId, userData }` | User joins a room |
-| `draw-start` | `{ operationId, tool, color, lineWidth }` | Start of a drawing stroke |
-| `draw-point` | `{ operationId, point: {x, y} }` | Point in a drawing stroke |
-| `draw-end` | `{ operationId, tool, color, lineWidth }` | End of a drawing stroke |
-| `cursor-move` | `{ x, y }` | User cursor position update |
-| `undo` | `{}` | Undo last operation |
-| `redo` | `{}` | Redo last undone operation |
-| `clear-canvas` | `{}` | Clear entire canvas |
+| Event          | Payload                                   | Description                 |
+| -------------- | ----------------------------------------- | --------------------------- |
+| `join-room`    | `{ roomId, userData }`                    | User joins a room           |
+| `draw-start`   | `{ operationId, tool, color, lineWidth }` | Start of a drawing stroke   |
+| `draw-point`   | `{ operationId, point: {x, y} }`          | Point in a drawing stroke   |
+| `draw-end`     | `{ operationId, tool, color, lineWidth }` | End of a drawing stroke     |
+| `cursor-move`  | `{ x, y }`                                | User cursor position update |
+| `undo`         | `{}`                                      | Undo last operation         |
+| `redo`         | `{}`                                      | Redo last undone operation  |
+| `clear-canvas` | `{}`                                      | Clear entire canvas         |
 
 #### Server → Client
 
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `room-state` | `{ users, drawingHistory, canvasState }` | Initial room state on join |
-| `draw-start` | `{ operationId, tool, color, lineWidth, userId }` | Remote user started drawing |
-| `draw-point` | `{ operationId, point, userId }` | Remote user drawing point |
-| `draw-end` | `{ operationId, tool, color, lineWidth, userId }` | Remote user finished drawing |
-| `cursor-move` | `{ x, y, userId }` | Remote user cursor position |
-| `undo` | `{ operationId, userId }` | Operation was undone |
-| `redo` | `{ operationId, userId }` | Operation was redone |
-| `clear-canvas` | `{ userId }` | Canvas was cleared |
-| `user-joined` | `{ id, name, color }` | New user joined room |
-| `user-left` | `{ userId }` | User left room |
+| Event          | Payload                                           | Description                  |
+| -------------- | ------------------------------------------------- | ---------------------------- |
+| `room-state`   | `{ users, drawingHistory, canvasState }`          | Initial room state on join   |
+| `draw-start`   | `{ operationId, tool, color, lineWidth, userId }` | Remote user started drawing  |
+| `draw-point`   | `{ operationId, point, userId }`                  | Remote user drawing point    |
+| `draw-end`     | `{ operationId, tool, color, lineWidth, userId }` | Remote user finished drawing |
+| `cursor-move`  | `{ x, y, userId }`                                | Remote user cursor position  |
+| `undo`         | `{ operationId, userId }`                         | Operation was undone         |
+| `redo`         | `{ operationId, userId }`                         | Operation was redone         |
+| `clear-canvas` | `{ userId }`                                      | Canvas was cleared           |
+| `user-joined`  | `{ id, name, color }`                             | New user joined room         |
+| `user-left`    | `{ userId }`                                      | User left room               |
 
 ### Message Serialization
 
 All messages are JSON-encoded. Drawing points use pixel coordinates relative to the canvas.
 
 **Example Draw Point Message:**
+
 ```json
 {
   "operationId": "local-1234567890-0.123",
@@ -139,11 +140,13 @@ The undo/redo system maintains consistency across all clients:
 **Scenario**: User A undoes while User B is drawing
 
 **Solution**:
+
 - Undo operations are queued and processed after active drawings complete
 - Operation IDs ensure correct operation removal
 - Timestamp-based ordering maintains consistency
 
 **Implementation**:
+
 ```javascript
 // Server-side undo
 undo() {
@@ -167,6 +170,7 @@ undo() {
 **Decision**: Send each drawing point individually rather than batching
 
 **Rationale**:
+
 - Provides true real-time feel (users see drawing as it happens)
 - Low latency for smooth collaborative experience
 - Acceptable for typical drawing speeds
@@ -178,6 +182,7 @@ undo() {
 **Decision**: Render locally before server confirmation
 
 **Rationale**:
+
 - Immediate feedback for user
 - Reduces perceived latency
 - Server still validates and broadcasts
@@ -189,6 +194,7 @@ undo() {
 **Decision**: Use quadratic curves instead of many line segments
 
 **Rationale**:
+
 - Smoother visual appearance
 - Fewer points to store
 - Better performance on redraw
@@ -200,6 +206,7 @@ undo() {
 **Decision**: Separate drawing and cursor canvases
 
 **Rationale**:
+
 - Cursor updates don't require full redraw
 - Better performance for frequent cursor movements
 - Cleaner separation of concerns
@@ -211,6 +218,7 @@ undo() {
 **Decision**: Store all operations in memory (no database)
 
 **Rationale**:
+
 - Fast access for undo/redo
 - Simple implementation
 - Sufficient for demo/assessment
@@ -223,7 +231,8 @@ undo() {
 
 **Problem**: Multiple users draw in overlapping areas
 
-**Solution**: 
+**Solution**:
+
 - Each operation is independent
 - Canvas composite operations handle overlapping correctly
 - No explicit locking (users can draw anywhere)
@@ -235,6 +244,7 @@ undo() {
 **Problem**: User A undoes while User B draws
 
 **Solution**:
+
 - Undo removes specific operation by ID
 - Active drawings continue normally
 - Undone operations can be redone
@@ -246,6 +256,7 @@ undo() {
 **Problem**: Network delays cause out-of-order messages
 
 **Solution**:
+
 - Operation IDs ensure correct association
 - Timestamps for ordering
 - Client-side buffering for active operations
@@ -290,6 +301,7 @@ undo() {
 6. **Message Queue**: Handle high-frequency events
 
 **Example Scaling Strategy**:
+
 ```
                     ┌─────────────┐
                     │ Load Balancer│
@@ -352,4 +364,3 @@ undo() {
 ---
 
 This architecture prioritizes real-time collaboration and smooth user experience while maintaining code clarity and extensibility.
-

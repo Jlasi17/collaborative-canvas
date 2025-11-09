@@ -211,15 +211,49 @@ class DrawingCanvas {
     }
 
     clearCanvas() {
-        if (window.socket) window.socket.emit('draw', { type: 'clear' });
+        if (window.socket && window.wsClient?.roomId) {
+            window.socket.emit('draw', { type: 'clear' });
+        } else {
+            // Local clear if not in room
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.saveState(true);
+        }
     }
-
+    
     undo() {
-        if (window.socket) window.socket.emit('draw', { type: 'undo' });
+        if (window.socket && window.wsClient?.roomId) {
+            window.socket.emit('draw', { type: 'undo' });
+        } else {
+            // Local undo if not in room
+            if (this.historyIndex < 0) return;
+            let targetIndex = -1;
+            for (let i = this.strokeBoundaries.length - 1; i >= 0; i--) {
+                const boundary = this.strokeBoundaries[i];
+                if (boundary.index <= this.historyIndex && boundary.isAfterStroke) {
+                    targetIndex = boundary.index - 1;
+                    break;
+                }
+            }
+            if (targetIndex < 0) targetIndex = Math.max(-1, this.historyIndex - 1);
+            if (this.strokeBoundaries.length > 0 && this.strokeBoundaries[this.strokeBoundaries.length - 1].index > targetIndex) {
+                this.strokeBoundaries.pop();
+            }
+            this.historyIndex = targetIndex;
+            if (this.historyIndex < 0) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            else this.redraw();
+        }
     }
-
+    
     redo() {
-        if (window.socket) window.socket.emit('draw', { type: 'redo' });
+        if (window.socket && window.wsClient?.roomId) {
+            window.socket.emit('draw', { type: 'redo' });
+        } else {
+            // Local redo if not in room
+            if (this.historyIndex < this.drawingHistory.length - 1) {
+                this.historyIndex++;
+                this.redraw();
+            }
+        }
     }
 
     redraw() {
