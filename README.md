@@ -35,4 +35,4 @@ npm install
 ```bash
 npm start
 ```
-this will start in the localhost
+After this, the app will be available on your localhost (usually http://localhost:3000).
