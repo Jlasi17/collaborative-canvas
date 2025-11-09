@@ -38,3 +38,5 @@ npm install
 npm start
 ```
 After this, the app will be available on your localhost (usually http://localhost:3000).
+--
+time spend : 1 and half day
